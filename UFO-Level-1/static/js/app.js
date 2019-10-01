@@ -3,254 +3,150 @@ var $dateInput = document.querySelector("#datetime");
 var $cityInput = document.querySelector("#city");
 var $stateInput = document.querySelector("#state");
 var $countryInput = document.querySelector("#country");
+var $searchBtn = document.querySelector("#search");
+var $recordCounter = document.querySelector("#recordCounter");
+var $pages = document.querySelector("#pages");
+var $loadBtn = document.querySelector("#load");
+var $nextBtn = document.querySelector("#next");
+var $prevBtn = document.querySelector("#prev");
 
-var filteredUFO= data; 
+// Add an event listener to the searchButton, call handleSearchButtonClick when clicked
+// $searchBtn.addEventListener("click", handleSearchButtonClick);
 
-console.log(filteredUFO)
+// Initialize global variables
+var filteredData = data;
+var count = 0;
+var pages = 0;
 
-// renderTable renders the filteredUFO to the tbody
-function renderTable() {
-  $tbody.innerHTML = "";
-  for (var i = 0; i < filteredUFO.length; i++) {
-    // Get get the current UFO object and its fields
-    var ufo = filteredUFO[i];
-    var observations = Object.keys(ufo);
-    // Create a new row in the tbody, set the index to be i + startingIndex
-    var $row = $tbody.insertRow(i);
-    for (var j = 0; j < observations.length; j++) {
-      // For every observations in the ufo object, create a new cell at set its inner text to be the current value at the current     ufo'sobservation
-      var observation = observations[j];
-      var $cell = $row.insertCell(j);
-      $cell.innerText = ufo[observation];
-    }
-  }
+// Define Event handler functions
+// handleNextButtonClick increments count and renders
+function handleNextButtonClick() {
+    count++;
+    renderTable();
+}
+// handlePrevButtonClick decrements count and renders
+function handlePrevButtonClick() {
+    count--;
+    renderTable();
 }
 
+// handlePagesChange renders for new record count selected
+function handlePagesChange() {
+    renderTable();
+}
+
+// handleSearchButtonClick handles search button click:
+//    cleans input data
+//    checks for non-empty search fields and adds to filter
+//    renders table
 function handleSearchButtonClick() {
-  // Format the user's search by removing leading and trailing whitespace, lowercase the string
-  var filterDate = $dateInput.value.trim();  
-  // Set filteredUFOs to an array of all ufos whose "date" matches the filter
-  filteredUFO = dataSet.filter(function(ufo) {
-    var ufoDate = ufo.datetime.toLowerCase();
+    var filterDate = $dateTimeInput.value.trim();
+    var filterCity = $cityInput.value.trim().toLowerCase();
+    var filterState = $stateInput.value.trim().toLowerCase();
+    var filterCountry = $countryInput.value.trim().toLowerCase();
+    var filterShape = $shapeInput.value.trim().toLowerCase();
 
-    // If true, add the date to the filteredUFO, otherwise don't add it to filteredUFO
-    return ufoDate === filterDate;
-  });
+    if (filterDate != "") {
+        filteredData = filteredData.filter(function (date) {
+        var dataDate = date.datetime;
+        return dataDate === filterDate;
+    });
 
-  $(document).ready(function () {
-    var firstRecord = 0;
-    var rowSize = 50;
-    var tableRows=$("#pagetable tbody tr");
-    $("a.pagination").click(function(e){
-      e.preventDefault();
-      if ($(this).attr("id") == "next"){
-            if (firstRecord + rowSize <= tableRows.length){ 
-                firstRecord += rowSize;}
-            } else {
-            if (firstRecord!= 0)
-             { firstRecord  -= rowSize;}
-            }
-         paginate(firstRecord, rowSize);
-       });
-      
-     var paginate =function(startAt, rowSize){
-       var endAt=startAt + rowSize - 1;
-         $(tableRows).each(function(index){
-           if (index >= startAt && index <= endAt){
-             $(this).show();
-           } else{
-             $(this).hide();
-           }
-         });
-     }
-     paginate(firstRecord, rowSize);
-  });
+    }
 
-  renderTable();
+    if (filterCity != "") {
+        filteredData = filteredData.filter(function (city) {
+        var dataCity = city.city;
+        return dataCity === filterCity;
+    });
+    }
 
+    if (filterState != "") {
+        filteredData = filteredData.filter(function (state) {
+            var dataState = state.state;
+            return dataState === filterState;
+        });
+    }
 
+    if (filterCountry != "") {
+        filteredData = filteredData.filter(function (country) {
+            var dataCountry = country.country;
+            return dataCountry === filterCountry;
+        });
+    }
+
+    if (filterShape != "") {
+        filteredData = filteredData.filter(function (shape) {
+            var dataShape = shape.shape;
+            return dataShape === filterShape;
+        });
+    }
+
+    renderTable();
 }
 
-function handleSearchButtonClick1() {
-  // Format the user's search by removing leading and trailing whitespace, lowercase the string
- 
-  var filterCity = $cityInput.value.trim().toLowerCase();
+// handleReloadButtonClick resets count and search fields, and renders
+function handleReloadButtonClick() {
+    count = 0;
+    filteredData = dataSet;
+    $dateTimeInput.value = '';
+    $cityInput.value = '';
+    $stateInput.value = '';
+    $countryInput.value = '';
+    $shapeInput.value = '';
 
-  // Set filteredUFOs to an array of all ufos whose "city" matches the filter
-  filteredUFO = dataSet.filter(function(ufo) {
-    var ufoCity = ufo.city.toLowerCase();
+    renderTable();
+}
 
-    // If true, add the city to the filteredUFO, otherwise don't add it to filteredUFO
-    return ufoCity === filterCity;
-  });
+// Define renderTable function
+function renderTable() {
+    // clear previously rendered table
+    $tbody.innerHTML = "";
 
-  $(document).ready(function () {
-    var firstRecord = 0;
-    var rowSize = 50;
-    var tableRows=$("#pagetable tbody tr");
-    $("a.pagination").click(function(e){
-      e.preventDefault();
-      if ($(this).attr("id") == "next"){
-            if (firstRecord + rowSize <= tableRows.length){ 
-                firstRecord += rowSize;}
-            } else {
-            if (firstRecord!= 0)
-             { firstRecord  -= rowSize;}
-            }
-         paginate(firstRecord, rowSize);
-       });
-      
-     var paginate =function(startAt, rowSize){
-       var endAt=startAt + rowSize - 1;
-         $(tableRows).each(function(index){
-           if (index >= startAt && index <= endAt){
-             $(this).show();
-           } else{
-             $(this).hide();
-           }
-         });
-     }
-     paginate(firstRecord, rowSize);
-  });
-
+    // Get number of records to be rendered
+    var pages = Number(document.getElementById("pages").value);
   
-  renderTable();
+    // Initialize local variables
+    var start = count * pages + 1;
+    var end = start + pages - 1;
+    var btn;
+
+    // Adjusts records displayed for end of data and state of Next button
+    if (end > filteredData.length) {
+      end = filteredData.length;
+      btn = document.getElementById("next");
+      btn.disabled = true;
+    }
+    else {
+      btn = document.getElementById("next");
+      btn.disabled = false;
+    }
+
+    // Adjusts state of Previous button
+    if (start == 1) {
+      btn = document.getElementById("prev");
+      btn.disabled = true;
+    }
+    else {
+      btn = document.getElementById("prev");
+      btn.disabled = false;
+    }
+
+    // Displays record counts and loads records into table
+    $recordCounter.innerText = "From Record: " + start + " to: " + end + " of " + filteredData.length;
+    // Outer loop loads specified number of records
+    for (var i = 0; i < pages; i++) {
+        var item = filteredData[i+(count * pages)];
+        var fields = Object.keys(item);
+        var $row = $tbody.insertRow(i);
+        // Inner loop loads fields in record
+        for (var j = 0; j < fields.length; j++) {
+            var field = fields[j];
+            var $cell = $row.insertCell(j);
+            $cell.innerText = item[field];
+        }
+    }
 }
 
-function handleSearchButtonClick2() {
-  // Format the user's search by removing leading and trailing whitespace, lowercase the string
- 
-  var filterState = $stateInput.value.trim().toLowerCase();
-
-  // Set filteredUFOs to an array of all ufos whose "state" matches the filter
-  filteredUFO = dataSet.filter(function(ufo) {
-    var ufoState = ufo.state.toLowerCase();
-
-    // If true, add the state to the filteredUFO, otherwise don't add it to filteredUFO
-    return ufoState === filterState;
-  });
-
-  $(document).ready(function () {
-    var firstRecord = 0;
-    var rowSize = 50;
-    var tableRows=$("#pagetable tbody tr");
-    $("a.pagination").click(function(e){
-      e.preventDefault();
-      if ($(this).attr("id") == "next"){
-            if (firstRecord + rowSize <= tableRows.length){ 
-                firstRecord += rowSize;}
-            } else {
-            if (firstRecord!= 0)
-             { firstRecord  -= rowSize;}
-            }
-         paginate(firstRecord, rowSize);
-       });
-      
-     var paginate =function(startAt, rowSize){
-       var endAt=startAt + rowSize - 1;
-         $(tableRows).each(function(index){
-           if (index >= startAt && index <= endAt){
-             $(this).show();
-           } else{
-             $(this).hide();
-           }
-         });
-     }
-     paginate(firstRecord, rowSize);
-  });
-
-  renderTable();
-}
-
-function handleSearchButtonClick3() {
-  // Format the user's search by removing leading and trailing whitespace, lowercase the string
- 
-  var filterCountry = $countryInput.value.trim().toLowerCase();
-
-  // Set filteredUFOs to an array of all ufos whose "country" matches the filter
-  filteredUFO = dataSet.filter(function(ufo) {
-    var ufoCountry = ufo.country.toLowerCase();
-
-    // If true, add the country to the filteredUFO, otherwise don't add it to filteredUFO
-    return ufoCountry === filterCountry;
-  });
-
-  $(document).ready(function () {
-    var firstRecord = 0;
-    var rowSize = 50;
-    var tableRows=$("#pagetable tbody tr");
-    $("a.pagination").click(function(e){
-      e.preventDefault();
-      if ($(this).attr("id") == "next"){
-            if (firstRecord + rowSize <= tableRows.length){ 
-                firstRecord += rowSize;}
-            } else {
-            if (firstRecord!= 0)
-             { firstRecord  -= rowSize;}
-            }
-         paginate(firstRecord, rowSize);
-       });
-      
-     var paginate =function(startAt, rowSize){
-       var endAt=startAt + rowSize - 1;
-         $(tableRows).each(function(index){
-           if (index >= startAt && index <= endAt){
-             $(this).show();
-           } else{
-             $(this).hide();
-           }
-         });
-     }
-     paginate(firstRecord, rowSize);
-  });
-
-  renderTable();
-}
-
-function handleSearchButtonClick4() {
-  // Format the user's search by removing leading and trailing whitespace, lowercase the string
- 
-  var filterShape = $shapeInput.value.trim().toLowerCase();
-
-  // Set filteredUFOs to an array of all ufos whose "shape" matches the filter
-  filteredUFO = dataSet.filter(function(ufo) {
-    var ufoShape = ufo.shape.toLowerCase();
-
-    // If true, add the shape to the filteredUFO, otherwise don't add it to filteredUFO
-    return ufoShape === filterShape;
-  });
-
-  $(document).ready(function () {
-    var firstRecord = 0;
-    var rowSize = 50;
-    var tableRows=$("#pagetable tbody tr");
-    $("a.pagination").click(function(e){
-      e.preventDefault();
-      if ($(this).attr("id") == "next"){
-            if (firstRecord + rowSize <= tableRows.length){ 
-                firstRecord += rowSize;}
-            } else {
-            if (firstRecord!= 0)
-             { firstRecord  -= rowSize;}
-            }
-         paginate(firstRecord, rowSize);
-       });
-      
-     var paginate =function(startAt, rowSize){
-       var endAt=startAt + rowSize - 1;
-         $(tableRows).each(function(index){
-           if (index >= startAt && index <= endAt){
-             $(this).show();
-           } else{
-             $(this).hide();
-           }
-         });
-     }
-     paginate(firstRecord, rowSize);
-  });
-
-  renderTable();
-}
-
-// Render the table for the first time on page load
+// Provides initial render on open
 renderTable();
