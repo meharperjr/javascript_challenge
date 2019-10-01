@@ -1,8 +1,9 @@
 var $tbody = document.querySelector("tbody");
-var $dateInput = document.querySelector("#datetime");
+var $dateTimeInput = document.querySelector("#date_time");
 var $cityInput = document.querySelector("#city");
 var $stateInput = document.querySelector("#state");
 var $countryInput = document.querySelector("#country");
+var $shapeInput = document.querySelector("#shape");
 var $searchBtn = document.querySelector("#search");
 var $recordCounter = document.querySelector("#recordCounter");
 var $pages = document.querySelector("#pages");
@@ -10,16 +11,19 @@ var $loadBtn = document.querySelector("#load");
 var $nextBtn = document.querySelector("#next");
 var $prevBtn = document.querySelector("#prev");
 
-// Add an event listener to the searchButton, call handleSearchButtonClick when clicked
-// $searchBtn.addEventListener("click", handleSearchButtonClick);
+// Add event listeners
+$searchBtn.addEventListener("click", handleSearchButtonClick);
+$loadBtn.addEventListener("click", handleReloadButtonClick);
+$nextBtn.addEventListener("click", handleNextButtonClick);
+$prevBtn.addEventListener("click", handlePrevButtonClick);
+$pages.addEventListener("change", handlePagesChange);
 
-// Initialize global variables
+// Initialize  variables
 var filteredData = data;
 var count = 0;
-var pages = 0;
 
 // Define Event handler functions
-// handleNextButtonClick increments count and renders
+
 function handleNextButtonClick() {
     count++;
     renderTable();
@@ -36,9 +40,7 @@ function handlePagesChange() {
 }
 
 // handleSearchButtonClick handles search button click:
-//    cleans input data
-//    checks for non-empty search fields and adds to filter
-//    renders table
+
 function handleSearchButtonClick() {
     var filterDate = $dateTimeInput.value.trim();
     var filterCity = $cityInput.value.trim().toLowerCase();
@@ -103,9 +105,9 @@ function renderTable() {
     // clear previously rendered table
     $tbody.innerHTML = "";
 
-    // Get number of records to be rendered
+    
     var pages = Number(document.getElementById("pages").value);
-  
+
     // Initialize local variables
     var start = count * pages + 1;
     var end = start + pages - 1;
@@ -148,5 +150,5 @@ function renderTable() {
     }
 }
 
-// Provides initial render on open
+
 renderTable();
